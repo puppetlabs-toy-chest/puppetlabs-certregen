@@ -14,7 +14,8 @@ end
 gem 'puppet', *location_for(ENV['PUPPET_VERSION'] || 'file://../../puppet')
 
 group :test do
-  gem "rspec", "~> 3.1"
+  gem "rspec", "~> 3.5"
+  gem "rspec-puppet", "~> 2.5"
   gem 'puppetlabs_spec_helper'
 end
 
