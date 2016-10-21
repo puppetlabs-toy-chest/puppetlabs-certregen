@@ -1,5 +1,6 @@
 require 'puppet/face'
-require 'puppet_x/certregen'
+require 'puppet_x/certregen/ca'
+require 'puppet_x/certregen/certificate'
 
 Puppet::Face.define(:certregen, '0.1.0') do
   summary "Regenerate the Puppet CA and client certificates"
@@ -8,29 +9,41 @@ Puppet::Face.define(:certregen, '0.1.0') do
     summary "Regenerate the Puppet CA certificate"
 
     when_invoked do |opts|
-      ca = setup_ca
-      PuppetX::Certregen.backup_cacert
-      PuppetX::Certregen.regenerate_cacert(ca)
+      ca = PuppetX::Certregen::CA.setup
+      PuppetX::Certregen::CA.backup
+      PuppetX::Certregen::CA.regenerate(ca)
       nil
     end
   end
 
   action(:healthcheck) do
-    summary "Check for expiring client certificates"
+    summary "Check for expiring certificates"
+
+    option('--all') do
+      summary 'Report certificate expiry for all nodes'
+    end
+
     when_invoked do |opts|
-      ca = setup_ca
+      certs = []
+      ca = PuppetX::Certregen::CA.setup
+      cacert = ca.host.certificate
+      certs << cacert if (opts[:all] || PuppetX::Certregen::Certificate.expiring?(cacert))
 
-      one_day_in_seconds = 60 * 60 * 24
-      six_months_in_seconds = one_day_in_seconds * 180
+      certs.concat(ca.list_certificates.select do |cert|
+        opts[:all] || PuppetX::Certregen::Certificate.expiring?(cert)
+      end.to_a)
 
-      ca.list_certificates.each do |cert|
+      certs.sort { |a, b| b.content.not_after <=> a.content.not_after }
+    end
 
-        expiry = cert.content.not_after - Time.now
-        if expiry < six_months_in_seconds
-          Puppet.warning "Cert #{cert.name} (serial #{cert.content.serial}) expires in #{(expiry / one_day_in_seconds).to_i} day(s)"
+    when_rendering :console do |certs|
+      certs.map do |cert|
+        str = "#{cert.name.inspect} #{cert.digest.to_s}\n"
+        PuppetX::Certregen::Certificate.expiry(cert).each do |row|
+          str << "  #{row[0]}: #{row[1]}\n"
         end
+        str
       end
-      nil
     end
   end
 end
