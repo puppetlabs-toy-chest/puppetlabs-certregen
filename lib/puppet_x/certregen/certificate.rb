@@ -16,7 +16,7 @@ module PuppetX
           status = :ok
         end
 
-        data = [['Status', status], ['Not after', cert.content.not_after]]
+        data = [['Status', status], ['Expiration date', cert.content.not_after]]
 
         if status != :expired
           data << ['Expires in', PuppetX::Certregen::Util.duration(cert.content.not_after - Time.now)]

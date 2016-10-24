@@ -44,7 +44,7 @@ RSpec.describe PuppetX::Certregen::Certificate do
       end
 
       it "includes the not after date" do
-        not_after = subject.find { |i| i[0] == 'Not after' }
+        not_after = subject.find { |i| i[0] == 'Expiration date' }
         expect(not_after[1]).to eq expired_certificate.content.not_after
       end
     end
@@ -58,7 +58,7 @@ RSpec.describe PuppetX::Certregen::Certificate do
       end
 
       it "includes the not after date" do
-        not_after = subject.find { |i| i[0] == 'Not after' }
+        not_after = subject.find { |i| i[0] == 'Expiration date' }
         expect(not_after[1]).to eq expiring_certificate.content.not_after
       end
 
@@ -77,7 +77,7 @@ RSpec.describe PuppetX::Certregen::Certificate do
       end
 
       it "includes the not after date" do
-        not_after = subject.find { |i| i[0] == 'Not after' }
+        not_after = subject.find { |i| i[0] == 'Expiration date' }
         expect(not_after[1]).to eq ok_certificate.content.not_after
       end
 
