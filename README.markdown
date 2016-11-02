@@ -45,6 +45,17 @@ Regenerate the CA certificate with the subject of the old CA certificate and upd
 
 Check all signed certificates (including the CA certificate) for certificates that are expired or nearing expiry.
 
+**Examples**:
+
+~~~
+[root@pe-201621-master vagrant]# puppet certregen healthcheck
+"foo.com" (SHA256) 07:2F:61:B4:FB:B3:05:75:9D:45:D1:A8:B1:69:0F:D0:EB:C9:27:03:4E:F8:DD:4A:59:AE:DF:EF:8E:11:74:69
+  Status: expiring
+  Expiration date: 2016-11-02 19:52:59 UTC
+  Expires in: 4 minutes, 19 seconds
+~~~
+
+
 ###Classes
 
 ####Public Classes
