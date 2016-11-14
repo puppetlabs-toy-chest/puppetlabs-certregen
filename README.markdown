@@ -1,13 +1,14 @@
-#ntp
+#Certregen
 
 ####Table of Contents
 
 1. [Overview](#overview)
 2. [Module Description - What the module does and why it is useful](#module-description)
-3. [Usage - Configuration options and additional functionality](#usage)
-4. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
-5. [Limitations - OS compatibility, etc.](#limitations)
-6. [Development - Guide for contributing to the module](#development)
+3. [Installing](#installing)
+4. [Usage - Configuration options and additional functionality](#usage)
+5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
+6. [Limitations - OS compatibility, etc.](#limitations)
+7. [Development - Guide for contributing to the module](#development)
 
 ##Overview
 
@@ -17,9 +18,23 @@ The certregen module regenerates and distributes expiring certificates.
 
 The certregen module regenerates expiring CA certificates while maintaining the validity of signed certificates in an existing PKI, and provides information about certificate expiration.
 
+##Installing
+
+1. Clone this repository to `/etc/puppetlabs/code/modules` (or any directory in your master's modulepath), with the directory name `certregen`
+
+~~~
+git clone https://github.com/puppetlabs/puppetlabs-certregen.git /etc/puppetlabs/code/modules/certregen
+~~~
+
+2. Run
+
+~~~
+puppet plugin download
+~~~
+
 ##Usage
 
-Regenerating a expiring Puppet CA certificate is a two step process of generating a new CA certificate, and then distributing
+Regenerating a expiring Puppet CA certificate is a two step process of generating a new CA certificate, and then distributing the new certificate.
 
 ###CA certificate regeneration
 
