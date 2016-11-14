@@ -20,11 +20,15 @@ module PuppetX
         Puppet::SSL::Host.ca_location = :only
         Puppet.settings.preferred_run_mode = "master"
 
-        raise "Not a CA" unless Puppet::SSL::CertificateAuthority.ca?
-        unless ca = Puppet::SSL::CertificateAuthority.instance
-          raise "Unable to fetch the CA"
+        if !Puppet::SSL::CertificateAuthority.ca?
+          raise "Unable to set up CA: this node is not a CA server."
         end
-        ca
+
+        if Puppet::SSL::Certificate.indirection.find('ca').nil?
+          raise "Unable to set up CA: the CA certificate is not present."
+        end
+
+        Puppet::SSL::CertificateAuthority.instance
       end
 
       def backup

@@ -5,6 +5,22 @@ RSpec.describe PuppetX::Certregen::CA do
 
   include_context "Initialize CA"
 
+  describe "#setup" do
+    it "errors out when the node is not a CA" do
+      Puppet[:ca] = false
+      expect {
+        described_class.setup
+      }.to raise_error(RuntimeError, "Unable to set up CA: this node is not a CA server.")
+    end
+
+    it "errors out when the node does not have a signed CA certificate" do
+      FileUtils.rm(Puppet[:cacert])
+      expect {
+        described_class.setup
+      }.to raise_error(RuntimeError, "Unable to set up CA: the CA certificate is not present.")
+    end
+  end
+
   describe '#backup_cacert' do
     it 'backs up the CA cert based on the current timestamp' do
       now = Time.now
