@@ -46,4 +46,44 @@ Puppet::Face.define(:certregen, '0.1.0') do
       end
     end
   end
+
+  action(:redistribute) do
+    summary "Redistribute the regenerated CA certificate to nodes in PuppetDB"
+
+    option('--username USER') do
+      summary "The username to use when logging into the remote machine"
+    end
+
+    option('--ssh_key_file FILE') do
+      summary "The SSH key file to use for authentication"
+      default_to { "~/.ssh/id_rsa" }
+    end
+
+    when_invoked do |opts|
+      config = {}
+
+      config.merge!(username: opts[:username]) if opts[:username]
+      config.merge!(ssh_key_file: File.expand_path(opts[:ssh_key_file])) if opts[:ssh_key_file]
+
+      ca = PuppetX::Certregen::CA.setup
+      cacert = ca.host.certificate
+      if PuppetX::Certregen::Certificate.expiring?(cacert)
+        Puppet.err "Refusing to distribute CA certificate: certificate is pending expiration."
+        exit 1
+      end
+
+      rv = {succeeded: [], failed: []}
+      PuppetX::Certregen::CA.certnames.each do |certname|
+        begin
+          PuppetX::Certregen::CA.distribute_cacert(certname, config)
+          rv[:succeeded] << certname
+        rescue => e
+          Puppet.log_exception(e)
+          rv[:failed] << certname
+        end
+      end
+
+      rv
+    end
+  end
 end

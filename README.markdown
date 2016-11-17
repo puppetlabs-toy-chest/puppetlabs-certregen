@@ -55,6 +55,27 @@ Check all signed certificates (including the CA certificate) for certificates th
   Expires in: 4 minutes, 19 seconds
 ~~~
 
+####puppet certregen redistribute
+
+Copy a regenerated Puppet CA certificate to all active nodes in PuppetDB in case the CA cert has already expired. This command must be run on the CA server and requires that the PostgreSQL server that PuppetDB uses is also located on the current node.
+
+~~~
+[root@pe-201640-master vagrant]# puppet certregen redistribute --username vagrant --ssh_key_file /vagrant/id_rsa
+
+{
+  "succeeded": [
+    "pe-201640-agent0.puppetdebug.vlan",
+    "pe-201640-agent1.puppetdebug.vlan",
+    "pe-201640-agent3.puppetdebug.vlan"
+    "pe-201640-agent2.puppetdebug.vlan",
+    "pe-201640-agent4.puppetdebug.vlan",
+    "pe-201640-master.puppetdebug.vlan"
+  ],
+  "failed": [
+  ]
+}
+~~~
+
 
 ###Classes
 
