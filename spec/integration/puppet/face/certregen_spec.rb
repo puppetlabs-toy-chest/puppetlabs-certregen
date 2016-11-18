@@ -9,9 +9,21 @@ describe Puppet::Face[:certregen, :current] do
   include_context "Initialize CA"
 
   describe "ca action" do
+    it "raises an error when the ca_serial option is not provided" do
+      expect {
+        described_class.ca
+      }.to raise_error(RuntimeError, /The serial number of the CA certificate to rotate must be provided/)
+    end
+
+    it "raises an error when the ca_serial option is not provided" do
+      expect {
+        described_class.ca(ca_serial: "02")
+      }.to raise_error(RuntimeError, /The serial number of the current CA certificate \(01\) does not match the serial number/)
+    end
+
     it "backs up the old CA cert and regenerates a new CA cert" do
       old_cacert_serial = Puppet::SSL::CertificateAuthority.new.host.certificate.content.serial
-      described_class.ca
+      described_class.ca(ca_serial: "01")
       new_cacert_serial = Puppet::SSL::CertificateAuthority.new.host.certificate.content.serial
       expect(old_cacert_serial).to_not eq(new_cacert_serial)
     end
