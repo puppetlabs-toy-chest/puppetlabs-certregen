@@ -8,8 +8,25 @@ Puppet::Face.define(:certregen, '0.1.0') do
   action(:ca) do
     summary "Regenerate the Puppet CA certificate"
 
+    option('--ca_serial SERIAL') do
+      summary 'The serial number (in hexadecimal) of the CA to rotate.'
+    end
+
     when_invoked do |opts|
       ca = PuppetX::Certregen::CA.setup
+
+      current_ca_serial = ca.host.certificate.content.serial.to_s(16)
+      if opts[:ca_serial].nil?
+        raise "The serial number of the CA certificate to rotate must be provided. If you " \
+          "are sure that you want to rotate the CA certificate, rerun this command with " \
+          "--ca_serial #{current_ca_serial}"
+      elsif opts[:ca_serial] != current_ca_serial
+        raise "The serial number of the current CA certificate (#{current_ca_serial}) "\
+          "does not match the serial number given on the command line (#{opts[:ca_serial]}). "\
+          "If you are sure that you want to rotate the CA certificate, rerun this command with "\
+          "--ca_serial #{current_ca_serial}"
+      end
+
       PuppetX::Certregen::CA.backup
       PuppetX::Certregen::CA.regenerate(ca)
       nil
