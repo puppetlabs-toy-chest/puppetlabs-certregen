@@ -12,6 +12,7 @@ end
 
 
 gem 'puppet', *location_for(ENV['PUPPET_VERSION'] || 'file://../../puppet')
+gem 'chloride', "~> 0.2.2"
 
 group :test do
   gem "rspec", "~> 3.5"

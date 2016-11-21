@@ -55,6 +55,9 @@ GEM
       specinfra (~> 2)
     builder (3.2.2)
     byebug (9.0.6)
+    chloride (0.2.2)
+      net-scp (~> 1)
+      net-ssh (~> 2)
     coderay (1.1.1)
     deep_merge (1.1.1)
     diff-lcs (1.2.5)
@@ -293,6 +296,7 @@ DEPENDENCIES
   beaker (< 3.0)
   beaker-hostgenerator
   beaker-rspec
+  chloride (~> 0.2.2)
   pry
   pry-byebug
   pry-doc
