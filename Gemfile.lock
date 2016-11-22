@@ -1,10 +1,3 @@
-PATH
-  remote: /home/adrien/puppetlabs/engineering/projects/ca-rotation/sources/puppet
-  specs:
-    puppet (4.7.1)
-      facter (>= 2.0.1, < 4)
-      hiera (>= 2.0, < 4)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -64,6 +57,8 @@ GEM
     docker-api (1.32.1)
       excon (>= 0.38.0)
       json
+    domain_name (0.5.20161021)
+      unf (>= 0.0.5, < 1.0.0)
     excon (0.54.0)
     facter (2.4.6)
       CFPropertyList (~> 2.2.6)
@@ -185,8 +180,10 @@ GEM
       multi_json (~> 1.11)
       os (~> 0.9)
       signet (~> 0.7)
-    hiera (3.2.1)
+    hiera (3.2.2)
     hocon (1.1.3)
+    http-cookie (1.0.3)
+      domain_name (~> 0.5)
     httpclient (2.8.2.4)
     hurley (0.2)
     in-parallel (0.1.15)
@@ -194,6 +191,7 @@ GEM
     inifile (2.0.2)
     ipaddress (0.8.3)
     json (1.8.3)
+    json_pure (1.8.3)
     jwt (1.5.6)
     little-plugger (1.1.4)
     logging (2.1.0)
@@ -213,6 +211,7 @@ GEM
       net-ssh (>= 2.6.5)
     net-ssh (2.9.4)
     net-telnet (0.1.1)
+    netrc (0.11.0)
     nokogiri (1.6.8.1)
       mini_portile2 (~> 2.1.0)
     open_uri_redirections (0.2.1)
@@ -227,6 +226,14 @@ GEM
     pry-doc (0.9.0)
       pry (~> 0.9)
       yard (~> 0.8)
+    puppet (4.8.0)
+      CFPropertyList (~> 2.2.6)
+      facter (> 2.0, < 4)
+      hiera (>= 2.0, < 4)
+      json_pure (~> 1.8)
+    puppet-blacksmith (3.4.0)
+      puppet (>= 2.7.16)
+      rest-client (~> 1.8.0)
     puppet-lint (2.0.2)
     puppet-syntax (2.1.1)
       rake
@@ -243,6 +250,10 @@ GEM
     representable (2.3.0)
       uber (~> 0.0.7)
     require_all (1.3.3)
+    rest-client (1.8.0)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 3.0)
+      netrc (~> 0.7)
     retriable (2.1.0)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
@@ -300,7 +311,8 @@ DEPENDENCIES
   pry
   pry-byebug
   pry-doc
-  puppet!
+  puppet (~> 4.7)
+  puppet-blacksmith (>= 3.4.0)
   puppetlabs_spec_helper
   rspec (~> 3.5)
   rspec-puppet (~> 2.5)

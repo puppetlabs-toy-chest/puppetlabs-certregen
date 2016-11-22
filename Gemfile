@@ -11,7 +11,7 @@ def location_for(place, fake_version = nil)
 end
 
 
-gem 'puppet', *location_for(ENV['PUPPET_VERSION'] || 'file://../../puppet')
+gem 'puppet', *location_for(ENV['PUPPET_VERSION'] || '~> 4.7')
 gem 'chloride', "~> 0.2.2"
 
 group :test do
@@ -27,6 +27,7 @@ group :acceptance do
 end
 
 group :development do
+  gem 'puppet-blacksmith', '>= 3.4.0',      :require => false, :platforms => 'ruby'
   gem 'pry'
   gem 'pry-doc'
   if RUBY_VERSION[0..2] == '1.9'
