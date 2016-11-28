@@ -31,7 +31,7 @@ module PuppetX
       # @param percent [Integer]
       def expiring?(cert, percent = 10)
         remaining = cert.content.not_after - Time.now
-        lifetime = cert.content.not_after - cert.content.not_before
+        lifetime = cert.content.not_after - (cert.content.not_before + 86400)
         remaining / lifetime < (percent / 100.0)
       end
     end

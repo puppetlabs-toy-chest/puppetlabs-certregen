@@ -21,9 +21,19 @@ RSpec.describe PuppetX::Certregen::Certificate do
     make_certificate("expiring", not_before, not_after)
   end
 
+  let(:short_lived_certificate) do
+    not_before = Time.now - 86400
+    not_after = Time.now + (60 * 5)
+    make_certificate("expiring", not_before, not_after)
+  end
+
   describe "#expiring?" do
     it "is false for nodes outside of the expiration window" do
       expect(described_class.expiring?(ok_certificate)).to eq(false)
+    end
+
+    it "is true for newly generated short lived certificates" do
+      expect(described_class.expiring?(short_lived_certificate)).to eq(false)
     end
 
     it "is true for expired nodes" do
