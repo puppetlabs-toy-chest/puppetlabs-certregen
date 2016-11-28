@@ -101,6 +101,8 @@ Copy a regenerated Puppet CA certificate to all active nodes in PuppetDB in case
 }
 ~~~
 
+This subcommand depends on the `chloride` gem, which is not included with this Puppet face. In order to use this subcommand you must manually install it with the `gem` command provided via the Puppet agent installer.
+
 
 ###Classes
 

@@ -88,6 +88,19 @@ Puppet::Face.define(:certregen, '0.1.0') do
   action(:redistribute) do
     summary "Redistribute the regenerated CA certificate to nodes in PuppetDB"
 
+    description <<-EOT
+      Redistribute the regenerated CA certificate to active nodes in PuppetDB. This command is
+      only necessary if the CA certificate is expired and a new CA certificate needs to be manually
+      distributed via SSH.
+
+      This subcommand depends on the `chloride` gem, which is not included with this Puppet face.
+
+      Distributing the CA certificate via SSH requires either a private ssh key (given by the
+      `--ssh_key_file` flag) or entering the password when prompted. If password auth is used,
+      the `highline` gem should be installed so that the entered password is not echoed to the
+      terminal.
+    EOT
+
     option('--username USER') do
       summary "The username to use when logging into the remote machine"
     end
