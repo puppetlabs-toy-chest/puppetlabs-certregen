@@ -71,12 +71,16 @@ Puppet::Face.define(:certregen, '0.1.0') do
     end
 
     when_rendering :console do |certs|
-      certs.map do |cert|
-        str = "#{cert.name.inspect} #{cert.digest.to_s}\n"
-        PuppetX::Certregen::Certificate.expiry(cert).each do |row|
-          str << "  #{row[0]}: #{row[1]}\n"
+      if certs.empty?
+        "No certificates are approaching expiration."
+      else
+        certs.map do |cert|
+          str = "#{cert.name.inspect} #{cert.digest.to_s}\n"
+          PuppetX::Certregen::Certificate.expiry(cert).each do |row|
+            str << "  #{row[0]}: #{row[1]}\n"
+          end
+          str
         end
-        str
       end
     end
   end

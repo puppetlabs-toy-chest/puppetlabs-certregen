@@ -36,15 +36,25 @@ puppet plugin download
 
 Regenerating a expiring Puppet CA certificate is a two step process of generating a new CA certificate, and then distributing the new certificate.
 
+###Quick start
+
+  1. Run `puppet certregen ca --ca_serial 01`
+  2. Add the `certregen::client` class to all nodes (in PE, you’ll probably want to use the “PE Agent” group)
+  3. Run Puppet on the CA server
+  4. Run Puppet on the compile masters (if present)
+  5. Run Puppet on all agent only nodes
+
 ###CA certificate regeneration
 
 CA certificate regeneration is handled by the `puppet certregen ca` action. The regenerated CA certificate will have the same subject as the old CA certificate but will have new notBefore and notAfter dates and a new serial number.
 
 ~~~
-[root@pe-201621-master ~]# puppet certregen ca
+[root@pe-201621-master ~]# puppet certregen ca --ca_serial 01
 Notice: Backing up current CA certificate to /etc/puppetlabs/puppet/ssl/ca/ca_crt.1477348467.pem
 Notice: Signed certificate request for ca
 ~~~
+
+Note that the `--ca_serial` argument must always be given to make sure that the CA certificate is not unexpectedly rotated by an errant command.
 
 Once the CA certificate has been rotated the `certregen::client` class should be included on all nodes to distribute the new certificate. If a master of master in use the compile masters will need to run Puppet and get a copy of the CA certificate before they can distribute the CA certificate to their clients.
 
