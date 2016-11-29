@@ -1,6 +1,7 @@
 require 'puppet/face'
 require 'puppet_x/certregen/ca'
 require 'puppet_x/certregen/certificate'
+require 'puppet/feature/chloride'
 
 Puppet::Face.define(:certregen, '0.1.0') do
   copyright "Puppet", 2016
@@ -111,6 +112,10 @@ Puppet::Face.define(:certregen, '0.1.0') do
     end
 
     when_invoked do |opts|
+      unless Puppet.features.chloride?
+        raise "Unable to distribute CA certificate: the chloride gem is not available."
+      end
+
       config = {}
 
       config.merge!(username: opts[:username]) if opts[:username]

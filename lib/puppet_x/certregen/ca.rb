@@ -1,9 +1,10 @@
 require 'securerandom'
 require 'shellwords'
-require 'chloride'
 
 require 'puppet'
 require 'puppet/util/execution'
+
+require 'puppet/feature/chloride'
 
 module PuppetX
   module Certregen
