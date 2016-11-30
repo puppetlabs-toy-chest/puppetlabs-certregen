@@ -160,7 +160,8 @@ Before you begin:
 4. Use `puppet certregen redistribute` to automatically distribute the CA to as many Linux nodes as possible. If you don't meet the prerequisites for this (see above), move on to the next step and manually copy the new CA cert to all nodes.
 
    1. Ensure that the CA server has an SSH private key that can log into your affected nodes. If this key is not usually present on this server, copy it over temporarily.
-   2. Run `puppet certregen redistribute --username <USER> --ssh_key_file <PATH TO KEY>`, replacing the placeholders with your SSH key and username.
+   2. Run `/opt/puppetlabs/puppet/bin/gem install chloride`. This SSH helper gem is required by the `certregen redistribute` action.
+   3. Run `puppet certregen redistribute --username <USER> --ssh_key_file <PATH TO KEY>`, replacing the placeholders with your SSH key and username.
 
    This extracts a list of node hostnames from PuppetDB's database, then copy the new CA cert to each node using SSH. When finished, it lists which nodes were successful and which ones failed.
 
