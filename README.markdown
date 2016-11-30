@@ -191,6 +191,25 @@ At this point, the new CA is fully distributed and you're good for another five 
 
 ## Reference
 
+### Concepts
+
+Puppet's security is based on a PKI using X.509 certificates. If you're only partially familiar with these concepts, [we've written an introductory primer](https://docs.puppet.com/background/ssl/) about them.
+
+The certregen module's `puppet certregen ca` action creates a new self-signed CA cert using the same keypair as the prior self-signed CA. The new CA has the same:
+
+* Keypair.
+* Subject.
+* Issuer.
+* X509v3 Subject Key Identifier (the fingerprint of the public key).
+
+The new CA has a different:
+
+* Authority Key Identifier (just the serial number, since it's self-signed).
+* Validity period (the point of the whole exercise).
+* Signature (since we changed the serial number and validity period).
+
+Since Puppet's services (and other services that use Puppet's PKI) validate certs by trusting a self-signed CA and comparing its public key to the signatures and Authority Key Identifiers of the certs it has issued, it's possible to issue a new self-signed CA based on a prior keypair without invalidating any certs issued by the old CA. Once you've done that, it's just a matter of delivering the new CA cert to every participant in the PKI.
+
 ### Faces
 
 #### puppet certregen ca
