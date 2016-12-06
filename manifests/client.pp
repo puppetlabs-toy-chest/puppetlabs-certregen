@@ -16,8 +16,6 @@ class certregen::client {
   file { $localcacert:
     ensure  => present,
     content => $cert,
-    owner   => 0,
-    group   => 0,
     mode    => '0644',
   }
 }
