@@ -44,6 +44,8 @@ module PuppetX
         FileUtils.cp(Puppet[:cacert], cacert_backup_path)
       end
 
+      # Generate an updated CA certificate with the same subject as the existing CA certificate
+      # and synchronize the new CA certificate with the local CA certificate.
       def regenerate(ca, cert = Puppet::SSL::Certificate.indirection.find("ca"))
         subject_cn = cert.content.subject.to_a[0][1]
 
@@ -52,6 +54,7 @@ module PuppetX
 
         PuppetX::Certregen::CA.sign(ca, Puppet::SSL::CA_NAME,
                                     {allow_dns_alt_names: false, self_signing_csr: request})
+        FileUtils.cp(Puppet[:cacert], Puppet[:localcacert])
       end
 
       # Copy the current CA certificate to the given host.
