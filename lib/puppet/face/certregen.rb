@@ -67,7 +67,7 @@ Puppet::Face.define(:certregen, '0.1.0') do
         opts[:all] || PuppetX::Certregen::Certificate.expiring?(cert)
       end.to_a)
 
-      certs.sort { |a, b| b.content.not_after <=> a.content.not_after }
+      certs.sort { |a, b| a.content.not_after <=> b.content.not_after }
     end
 
     when_rendering :console do |certs|

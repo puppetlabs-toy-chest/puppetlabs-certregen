@@ -51,5 +51,12 @@ describe Puppet::Face[:certregen, :current] do
       expect(healthchecked.size).to eq(1)
       expect(healthchecked.first.digest.to_s).to eq(cert.digest.to_s)
     end
+
+    it 'orders certificates from shortest expiry to longest expiry' do
+      Puppet::SSL::Certificate.indirection.save(make_certificate("first", not_before, not_after))
+      Puppet::SSL::Certificate.indirection.save(make_certificate("last", not_before + 1, not_after + 1))
+
+      expect(described_class.healthcheck.map(&:name)).to eq %w[first last]
+    end
   end
 end
