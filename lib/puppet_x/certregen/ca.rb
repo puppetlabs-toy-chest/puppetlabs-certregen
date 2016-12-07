@@ -3,6 +3,7 @@ require 'shellwords'
 
 require 'puppet'
 require 'puppet/util/execution'
+require 'puppet/util/package'
 
 require 'puppet/feature/chloride'
 
@@ -10,19 +11,6 @@ module PuppetX
   module Certregen
     module CA
       module_function
-
-      # Abstract API changes for CA cert signing
-      #
-      # @param ca [Puppet::SSL::CertificateAuthority]
-      # @param hostname [String]
-      # @param options [Hash<Symbol, Object>]
-      def sign(ca, hostname, options)
-        if Puppet::PUPPETVERSION >= "4.6.0"
-          ca.sign(hostname, options)
-        else
-          ca.sign(hostname, options[:allow_dns_alt_names], options[:self_signing_csr])
-        end
-      end
 
       def setup
         Puppet::SSL::Host.ca_location = :only
@@ -112,6 +100,19 @@ module PuppetX
                                         uid: 'pe-postgres',
                                         gid: 'pe-postgres').split("\n")
 
+      end
+
+      # Abstract API changes for CA cert signing
+      #
+      # @param ca [Puppet::SSL::CertificateAuthority]
+      # @param hostname [String]
+      # @param options [Hash<Symbol, Object>]
+      def sign(ca, hostname, options)
+        if Puppet::Util::Package.versioncmp(Puppet::PUPPETVERSION, "4.6.0") != -1
+          ca.sign(hostname, options)
+        else
+          ca.sign(hostname, options[:allow_dns_alt_names], options[:self_signing_csr])
+        end
       end
     end
   end
