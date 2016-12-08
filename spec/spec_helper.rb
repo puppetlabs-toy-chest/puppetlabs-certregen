@@ -44,7 +44,7 @@ RSpec.shared_context "Initialize CA" do
     Puppet.settings.preferred_run_mode = "master"
 
     Puppet[:ca] = true
-    Puppet[:ca_name] = 'foo'
+    Puppet[:ca_name] = 'Puppet CA: foo'
 
     generate_pki
   end

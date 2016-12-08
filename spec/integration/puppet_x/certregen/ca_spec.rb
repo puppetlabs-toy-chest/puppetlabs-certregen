@@ -55,11 +55,25 @@ RSpec.describe PuppetX::Certregen::CA do
       expect(old_serial).to_not eq new_serial
     end
 
-    it 'copies the old subject CN to the new certificate' do
+    before do
       Puppet[:ca_name] = 'bar'
       described_class.regenerate(Puppet::SSL::CertificateAuthority.new)
+    end
+
+    it 'copies the old subject CN to the new certificate' do
       new_cacert = Puppet::SSL::Certificate.indirection.find("ca")
-      expect(new_cacert.content.subject.to_a[0][1]).to eq 'foo'
+      expect(new_cacert.content.subject.to_a[0][1]).to eq 'Puppet CA: foo'
+    end
+
+    it "matches the issuer field with the old CA and new CA" do
+      new_cacert = Puppet::SSL::Certificate.indirection.find("ca")
+      expect(new_cacert.content.issuer.to_a[0][1]).to eq 'Puppet CA: foo'
+    end
+
+    it "matches the Authority Key Identifier field with the old CA and new CA" do
+      new_cacert = Puppet::SSL::Certificate.indirection.find("ca")
+      aki = new_cacert.content.extensions.find { |ext| ext.oid == 'authorityKeyIdentifier' }
+      expect(aki.value).to match(/Puppet CA: foo/)
     end
 
     it 'copies the cacert to the localcacert' do
