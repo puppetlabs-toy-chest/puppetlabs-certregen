@@ -1,6 +1,7 @@
 require 'puppet/face'
 require 'puppet_x/certregen/ca'
 require 'puppet_x/certregen/certificate'
+require 'puppet_x/certregen/crl'
 require 'puppet/feature/chloride'
 
 Puppet::Face.define(:certregen, '0.1.0') do
@@ -44,6 +45,19 @@ Puppet::Face.define(:certregen, '0.1.0') do
       PuppetX::Certregen::CA.backup
       PuppetX::Certregen::CA.regenerate(ca)
       nil
+    end
+  end
+
+  action(:crl) do
+    summary 'Update the lastUpdate and nextUpdate field for the CA CRL'
+
+    when_invoked do |opts|
+      ca = PuppetX::Certregen::CA.setup
+      PuppetX::Certregen::CRL.refresh(ca)
+    end
+
+    when_rendering(:console) do |crl|
+      "CRL next update is now #{crl.content.next_update}"
     end
   end
 
