@@ -14,6 +14,25 @@ Puppet::Face.define(:certregen, '0.1.0') do
   EOT
 
   action(:ca) do
+    summary "Refresh the Puppet CA certificate and CRL"
+
+    option('--ca_serial SERIAL') do
+      summary 'The serial number (in hexadecimal) of the CA to rotate.'
+    end
+
+    when_invoked do |opts|
+      cert = Puppet::Face[:certregen, :current].cacert(:ca_serial => opts[:ca_serial])
+      crl = Puppet::Face[:certregen, :current].crl()
+      [cert, crl]
+    end
+
+    when_rendering :console do |(cert, crl)|
+      "CA expiration is now #{cert.content.not_after}\n" + \
+      "CRL next update is now #{crl.content.next_update}"
+    end
+  end
+
+  action(:cacert) do
     summary "Regenerate the Puppet CA certificate"
 
     description <<-EOT
@@ -44,7 +63,11 @@ Puppet::Face.define(:certregen, '0.1.0') do
 
       PuppetX::Certregen::CA.backup
       PuppetX::Certregen::CA.regenerate(ca)
-      nil
+      ca.host.certificate
+    end
+
+    when_rendering(:console) do |cert|
+      "CA expiration is now #{cert.content.not_after}"
     end
   end
 

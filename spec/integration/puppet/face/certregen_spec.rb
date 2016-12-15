@@ -9,6 +9,14 @@ describe Puppet::Face[:certregen, :current] do
   include_context "Initialize CA"
 
   describe "ca action" do
+    it "invokes the cacert and crl actions" do
+      expect(described_class).to receive(:cacert).with(ca_serial: "01")
+      expect(described_class).to receive(:crl)
+      described_class.ca(ca_serial: "01")
+    end
+  end
+
+  describe "cacert action" do
     it "raises an error when the ca_serial option is not provided" do
       expect {
         described_class.ca
