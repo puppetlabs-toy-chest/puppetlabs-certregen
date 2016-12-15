@@ -1,12 +1,4 @@
 Facter.add(:localcacert) do
-  confine do
-    begin
-      require 'puppet'
-      true
-    rescue LoadError
-      false
-    end
-  end
-
+  confine :has_puppet => true
   setcode { Puppet[:localcacert] }
 end

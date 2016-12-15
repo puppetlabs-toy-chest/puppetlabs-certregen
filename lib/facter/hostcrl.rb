@@ -1,12 +1,4 @@
 Facter.add(:hostcrl) do
-  confine do
-    begin
-      require 'puppet'
-      true
-    rescue LoadError
-      false
-    end
-  end
-
+  confine :has_puppet => true
   setcode { Puppet[:hostcrl] }
 end
