@@ -168,7 +168,7 @@ Puppet::Face.define(:certregen, '0.1.0') do
       rv = {succeeded: [], failed: []}
       PuppetX::Certregen::CA.certnames.each do |certname|
         begin
-          PuppetX::Certregen::CA.distribute_cacert(certname, config)
+          PuppetX::Certregen::CA.distribute(certname, config)
           rv[:succeeded] << certname
         rescue => e
           Puppet.log_exception(e)

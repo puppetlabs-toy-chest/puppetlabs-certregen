@@ -45,15 +45,15 @@ module PuppetX
         FileUtils.cp(Puppet[:cacert], Puppet[:localcacert])
       end
 
-      # Copy the current CA certificate to the given host.
+      # Copy the current CA certificate and CRL to the given host.
       #
-      # @note Only Linux systems are supported and requires that the localcacert setting on the
+      # @note Only Linux systems are supported and requires that the localcacert/hostcrl setting on the
       #   given host is the default path.
       #
       # @param [String] hostname The host to copy the CA cert to
       # @param [Hash] config the Chloride host config
       # @return [void]
-      def distribute_cacert(hostname, config)
+      def distribute(hostname, config)
         host = Chloride::Host.new(hostname, config)
         host.ssh_connect
 
@@ -65,28 +65,44 @@ module PuppetX
           end
         end
 
+        distribute_cacert(host, log_events)
+        distribute_crl(host, log_events)
+      end
+
+      def distribute_cacert(host, blk)
         src = Puppet[:cacert]
-        tmp = "cacert.pem.tmp.#{SecureRandom.uuid}"
         dst ='/etc/puppetlabs/puppet/ssl/certs/ca.pem' # @todo: query node for localcacert
+        distribute_file(host, src, dst, blk)
+      end
+
+      def distribute_crl(host, blk)
+        src = Puppet[:cacrl]
+        dst ='/etc/puppetlabs/puppet/ssl/crl.pem' # @todo: query node for hostcrl
+        distribute_file(host, src, dst, blk)
+      end
+
+      def distribute_file(host, src, dst, blk)
+        tmp = "#{File.basename(src)}.tmp.#{SecureRandom.uuid}"
 
         copy_action = Chloride::Action::FileCopy.new(to_host: host, from: src, to: tmp)
-        copy_action.go(&log_events)
+        copy_action.go(&blk)
         if copy_action.success?
-          Puppet.info "Copied #{src} to #{hostname}:#{tmp}"
+          Puppet.info "Copied #{src} to #{host.hostname}:#{tmp}"
         else
-          raise "Failed to copy #{src} to #{hostname}:#{tmp}: #{copy_action.status}"
+          raise "Failed to copy #{src} to #{host.hostname}:#{tmp}: #{copy_action.status}"
         end
 
         move_action = Chloride::Action::Execute.new(host: host, cmd: "cp #{tmp} #{dst}", sudo: true)
-
-        move_action.go(&log_events)
+        move_action.go(&blk)
 
         if move_action.success?
-          Puppet.info "Updated #{hostname}:#{dst} to new CA certificate"
+          Puppet.info "Updated #{host.hostname}:#{dst}"
         else
-          raise "Failed to copy #{tmp} to #{hostname}:#{dst}"
+          raise "Failed to copy #{tmp} to #{host.hostname}:#{dst}"
         end
+
       end
+
 
       # Enumerate Puppet nodes without relying on PuppetDB
       #
