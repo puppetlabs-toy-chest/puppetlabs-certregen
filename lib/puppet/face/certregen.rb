@@ -124,10 +124,10 @@ Puppet::Face.define(:certregen, '0.1.0') do
   end
 
   action(:redistribute) do
-    summary "Redistribute the regenerated CA certificate to nodes in PuppetDB"
+    summary "Redistribute the regenerated CA certificate and CRL to nodes in PuppetDB"
 
     description <<-EOT
-      Redistribute the regenerated CA certificate to active nodes in PuppetDB. This command is
+      Redistribute the regenerated CA certificate and CRL to active nodes in PuppetDB. This command is
       only necessary if the CA certificate is expired and a new CA certificate needs to be manually
       distributed via SSH.
 
