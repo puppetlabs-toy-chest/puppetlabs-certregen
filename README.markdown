@@ -16,7 +16,7 @@ The certregen module can painlessly refresh a certificate authority (CA) that's 
 
 ## Module Description
 
-This module is for regenerating and redistributing Puppet CA certificates, without invalidating certificates signed by the original CA.
+This module is for regenerating and redistributing Puppet CA certificates and refreshing CRLs, without invalidating certificates signed by the original CA.
 
 A Puppet deployment's CA certificate is only valid for a limited time (usually five years), after which it expires. When a CA expires, Puppet's services will no longer accept any certificates signed by that CA, and your Puppet infrastructure will immediately stop working.
 
@@ -26,8 +26,8 @@ If your Puppet infrastructure has been in place for almost five years, you shoul
 
 If your CA is expiring soon (or it's already expired and Puppet has stopped working), you should:
 
-* Generate a new CA certificate using the existing CA keypair.
-* Distribute the new CA cert to every node in your Puppet infrastructure.
+* Generate a new CA certificate using the existing CA keypair. This will also automatically update the expiration date of the certificate revocation list (CRL).
+* Distribute the new CA cert and CRL to every node in your Puppet infrastructure.
 
 The certregen module can help you with all of these tasks.
 
@@ -54,11 +54,12 @@ puppet module install puppetlabs-certregen
 
 ## Usage
 
-The certregen module can help you with three main tasks:
+The certregen module can help you with four main tasks:
 
 * Check whether any certificates (including the CA) are expired or nearing their expiration date.
 * Refresh and redistribute a CA that hasn't yet expired, in a working Puppet deployment.
-* Revive and redistribute an expired CA, in a Puppet deployment that has stopped working.
+* Refresh and redistribute a CRL that hasn't yet expired, in a working Puppet deployment.
+* Revive and redistribute an expired CA and CRL, in a Puppet deployment that has stopped working.
 
 ### Check for nearly-expired (or expired) certificates
 
@@ -103,10 +104,13 @@ Before you begin, check to make sure your CA really needs to be refreshed (see a
 
    By default, this gives the new CA a lifetime of five years. If you wish to set a non-default lifetime, you can add `--ca_ttl <DURATION>`. See [the docs on the ca_ttl setting][ca_ttl] for details.
 
+   When you regenerate the CA certificate, the CRL will be refreshed at the same time with a new expiration of five years as well.
+
    At this point:
 
    * The CA certificate _on your CA server_ has been replaced with a new one. The new CA uses the same keypair, subject, issuer, and subject key identifier as the old one; in practical terms, this means it is a seamless replacement for the old CA.
-   * Your Puppet nodes are still using the old CA.
+   * The CRL _on your CA server_ has been updated with a new expiration date, but is otherwise unchanged.
+   * Your Puppet nodes are still using the old CA and CRL.
 4. **In your [main manifest][] directory,** add a new manifest file called `ca.pp`. In that file, add this line:
 
    ``` puppet
@@ -120,7 +124,7 @@ Before you begin, check to make sure your CA really needs to be refreshed (see a
 6. Ensure that Puppet runs at least once on every other node in your deployment.
 7. On any Puppet infrastructure nodes (Puppet Server, PuppetDB, PE console), restart all Puppet-related services. The exact services to restart will depend on your version of PE or open source Puppet.
 
-At this point, the new CA is fully distributed and you're good for another five years.
+At this point, the new CA and CRL is fully distributed and you're good for another five years.
 
 ### Revive a CA that's already expired
 
@@ -152,12 +156,15 @@ Before you begin:
 
    By default, this gives the new CA a lifetime of five years. If you wish to set a non-default lifetime, you can add `--ca_ttl <DURATION>`. See [the docs on the ca_ttl setting][ca_ttl] for details.
 
+   When you regenerate the CA certificate, the CRL will be refreshed at the same time with a new expiration of five years as well.
+
    At this point:
 
    * The CA certificate _on your CA server_ has been replaced with a new one. The new CA uses the same keypair, subject, issuer, and subject key identifier as the old one; in practical terms, this means it is a seamless replacement for the old CA.
+   * The CRL _on your CA server_ has been updated with a new expiration date, but is otherwise unchanged.
    * Your Puppet nodes still have the old CA, and Puppet is still non-functional.
 
-4. Use `puppet certregen redistribute` to automatically distribute the CA to as many Linux nodes as possible. If you don't meet the prerequisites for this (see above), move on to the next step and manually copy the new CA cert to all nodes.
+4. Use `puppet certregen redistribute` to automatically distribute the CA certificate and CRL to as many Linux nodes as possible. If you don't meet the prerequisites for this (see above), move on to the next step and manually copy the new CA cert to all nodes.
 
    1. Ensure that the CA server has an SSH private key that can log into your affected nodes. If this key is not usually present on this server, copy it over temporarily.
    2. Run `/opt/puppetlabs/puppet/bin/gem install chloride`. This SSH helper gem is required by the `certregen redistribute` action.
@@ -186,9 +193,16 @@ Before you begin:
    * The source file is on your CA server, at `/etc/puppetlabs/puppet/ssl/ca/ca_crt.pem`.
    * Copy it to `<SSLDIR>/certs/ca.pem` on every node. The default ssldir is `/etc/puppetlabs/puppet/ssl` on \*nix, and `%PROGRAMDATA%\PuppetLabs\puppet\etc` on Windows. See [the ssldir docs][ssldir] for the full details.
    * If you have any other services that use Puppet's PKI (like MCollective, for example), you must update the CA cert for them as well.
+
+6. Manually copy the updated CRL to any non-Linux nodes and any nodes where automatic distribution failed.
+
+   * The source file is on your CA server, at `/etc/puppetlabs/puppet/ssl/ca/ca_crl.pem`.
+   * Copy it to `<SSLDIR>/crl.pem` on every node. The default ssldir is `/etc/puppetlabs/puppet/ssl` on \*nix, and `%PROGRAMDATA%\PuppetLabs\puppet\etc` on Windows. See [the ssldir docs][ssldir] for the full details.
+   * If you have any other services that use Puppet's PKI (like MCollective, for example) and uses the Puppet CRL, you must update the CRL for them as well.
+
 7. On any Puppet infrastructure nodes (Puppet Server, PuppetDB, PE console), restart all Puppet-related services. The exact services to restart will depend on your version of PE or open source Puppet.
 
-At this point, the new CA is fully distributed and you're good for another five years.
+At this point, the new CA and CRL is fully distributed and you're good for another five years.
 
 ## Reference
 
@@ -215,7 +229,9 @@ Since Puppet's services (and other services that use Puppet's PKI) validate cert
 
 #### puppet certregen ca
 
-Regenerate the CA certificate with the subject of the old CA certificate and updated notBefore and notAfter dates.
+Regenerate the CA certificate with the subject of the old CA certificate and updated notBefore and notAfter dates, and update the CRL with a nextUpdate field of 5 years from the present date.
+
+This command combines the behaviors of the `puppet certregean cacert` and `puppet certregen crl` commands and is the preferred method of regenerating your CA.
 
 #### puppet certregen healthcheck
 
@@ -230,6 +246,16 @@ Check all signed certificates (including the CA certificate) for certificates th
   Expiration date: 2016-11-02 19:52:59 UTC
   Expires in: 4 minutes, 19 seconds
 ~~~
+
+#### puppet certregen cacert
+
+Regenerate the CA certificate with the subject of the old CA certificate and updated notBefore and notAfter dates.
+
+#### puppet certregen crl
+
+Update the CRL with a nextUpdate field of 5 years from the present date.
+
+CRLs don't usually expire, since their expiration date is normally updated whenever a certificate is revoked. But in rare cases, like when no certificates have been revoked in five years, they can expire and cause problems.
 
 #### puppet certregen redistribute
 
@@ -259,7 +285,7 @@ This subcommand depends on the `chloride` gem, which is not included with this P
 
 #### Public Classes
 
-  * `certregen::client`: Rotate the CA certificate on Puppet agents.
+  * `certregen::client`: Rotate the CA certificate and CRL on Puppet agents.
 
 ## Limitations
 
