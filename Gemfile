@@ -12,7 +12,7 @@ end
 
 
 gem 'puppet', *location_for(ENV['PUPPET_VERSION'] || '~> 4.7')
-gem 'chloride', "~> 0.2.2"
+gem 'chloride', "~> 0.2"
 
 group :test do
   gem "rspec", "~> 3.5"
@@ -20,10 +20,15 @@ group :test do
   gem 'puppetlabs_spec_helper'
 end
 
-group :acceptance do
-  gem 'beaker', '< 3.0'
-  gem 'beaker-rspec'
-  gem 'beaker-hostgenerator'
+group :system_tests do
+  gem 'beaker', *location_for(ENV['BEAKER_VERSION'] || '>= 3')
+  gem 'beaker-pe',                                                               :require => false
+  gem 'beaker-rspec', *location_for(ENV['BEAKER_RSPEC_VERSION'])
+  gem 'beaker-puppet_install_helper',                                            :require => false
+  gem 'beaker-module_install_helper',                                            :require => false
+  gem 'master_manipulator',                                                      :require => false
+  gem 'beaker-hostgenerator', *location_for(ENV['BEAKER_HOSTGENERATOR_VERSION'])
+  gem 'beaker-abs', *location_for(ENV['BEAKER_ABS_VERSION'] || '~> 0.1')
 end
 
 group :development do
