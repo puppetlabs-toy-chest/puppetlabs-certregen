@@ -6,9 +6,13 @@ RSpec.configure do |c|
     # Suppress cert fingerprint logging
     allow_any_instance_of(Puppet::SSL::CertificateAuthority).to receive(:puts)
 
+    # remove the stub that causes puppet to believe it is
+    # always being run as root.
+    # See https://github.com/puppetlabs/puppetlabs_spec_helper/blob/master/lib/puppetlabs_spec_helper/module_spec_helper.rb#L29
+    Puppet.features.unstub(:root?)
+
     Puppet[:vardir] = tmpdir('var')
     Puppet[:confdir] = tmpdir('conf')
-    Puppet[:user] = ENV['USER']
   end
 
   def backdate_certificate(ca, cert, not_before, not_after)
