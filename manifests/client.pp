@@ -8,19 +8,19 @@
 class certregen::client(
   $manage_crl = true
 ) {
-  file { $localcacert:
+  file { $::localcacert:
     ensure  => present,
-    content => file($settings::cacert, $settings::localcacert, "/dev/null"),
+    content => file($settings::cacert, $settings::localcacert, '/dev/null'),
     mode    => '0644',
   }
 
-  $crl_managed_by_pe = ($pe_build and versioncmp($pe_build, '3.7.0') >= 0) and is_classified_with('puppet_enterprise::profile::master')
+  $crl_managed_by_pe = ($::pe_build and versioncmp($::pe_build, '3.7.0') >= 0) and is_classified_with('puppet_enterprise::profile::master')
   $needs_crl = $manage_crl and !defined(File[$::hostcrl]) and !$crl_managed_by_pe
 
   if $needs_crl {
-    file { $hostcrl:
+    file { $::hostcrl:
       ensure  => present,
-      content => file($settings::cacrl, $settings::hostcrl, "/dev/null"),
+      content => file($settings::cacrl, $settings::hostcrl, '/dev/null'),
       mode    => '0644',
     }
   }
