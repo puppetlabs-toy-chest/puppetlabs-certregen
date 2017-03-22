@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "author": "puppetlabs",
   "summary": "Puppet module providing the certregen face for regenerating CA certificates",
-  "license": "proprietary",
+  "license": "Apache-2.0",
   "source": "https://github.com/puppetlabs/puppetlabs-certregen",
   "project_page": "https://github.com/puppetlabs/puppetlabs-certregen",
   "issues_url": "https://tickets.puppetlabs.com/browse/MODULES",
