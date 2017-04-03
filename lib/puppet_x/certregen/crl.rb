@@ -4,7 +4,7 @@ require 'openssl'
 module PuppetX
   module Certregen
     # @api private
-    # @see {Puppet::SSL::CertificateRevocationList'
+    # @see {Puppet::SSL::CertificateRevocationList}
     module CRL
       module_function
 
