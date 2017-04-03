@@ -63,7 +63,7 @@ Puppet::Face.define(:certregen, '0.1.0') do
 
       PuppetX::Certregen::CA.backup
       PuppetX::Certregen::CA.regenerate(ca)
-      ca.host.certificate
+      Puppet::SSL::Certificate.indirection.find(Puppet::SSL::CA_NAME)
     end
 
     when_rendering(:console) do |cert|

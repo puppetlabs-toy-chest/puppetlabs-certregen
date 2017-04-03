@@ -35,6 +35,13 @@ describe Puppet::Face[:certregen, :current] do
       new_cacert_serial = Puppet::SSL::CertificateAuthority.new.host.certificate.content.serial
       expect(old_cacert_serial).to_not eq(new_cacert_serial)
     end
+
+    it "returns the new CA certificate" do
+      returned_cacert = described_class.ca(ca_serial: "01").first
+      new_cacert = Puppet::SSL::CertificateAuthority.new.host.certificate.content
+      expect(returned_cacert.content.serial).to eq new_cacert.serial
+      expect(returned_cacert.content.not_after).to eq new_cacert.not_after
+    end
   end
 
   describe 'healthcheck action' do
