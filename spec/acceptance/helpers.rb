@@ -12,9 +12,11 @@ YEAR = 365 * DAY
 # @return [OpenSSL::X509::Certificate]  Certificate object
 def get_ca_cert_on(host)
   if host[:roles].include? 'master' then
-    ca_path = '/etc/puppetlabs/puppet/ssl/ca/ca_crt.pem'
+    dir = on(host, puppet('config', 'print', 'cadir')).stdout.chomp
+    ca_path = "#{dir}/ca_crt.pem"
   else
-    ca_path = '/etc/puppetlabs/puppet/ssl/certs/ca.pem'
+    dir = on(host, puppet('config', 'print', 'certdir')).stdout.chomp
+    ca_path = "#{dir}/ca.pem"
   end
   on(host, "cat #{ca_path}") do |result|
     cert = OpenSSL::X509::Certificate.new(result.stdout)
