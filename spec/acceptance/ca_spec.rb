@@ -46,8 +46,7 @@ describe "puppet certregen ca" do
           @regen_result = on(master, "puppet certregen ca --ca_serial #{serial} --ca_ttl 1d")
         end
 
-        xit 'should output the updated CA expiration date - pending resolution of MODULES-4523' do
-        #it 'should output the updated CA expiration date' do
+        it 'should output the updated CA expiration date' do
           expect(@regen_result.stdout).to match( /CA expiration is now #{@tomorrow.utc.strftime('%Y-%m-%d')}/ )
         end
         it 'should update CA cert enddate' do
