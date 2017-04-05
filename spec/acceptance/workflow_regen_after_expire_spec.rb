@@ -8,12 +8,17 @@ describe "C99821 - workflow - regen CA after it expires" do
     # This workflow only works with a puppetdb instance to query hostnames from
     context 'create CA to be expired and update agents' do
       before(:all) do
+        ttl = 60
         serial = get_ca_serial_id_on(master)
-        on(master, puppet("certregen ca --ca_serial #{serial} --ca_ttl 1s"))
+        on(master, puppet("certregen ca --ca_serial #{serial} --ca_ttl #{ttl}s"))
+        start = Time.now
         agents.each do |agent|
-          on(agent, puppet('agent -t'), :acceptable_exit_codes => [0,1,2])
+          on(agent, puppet('agent -t'), :acceptable_exit_codes => [0,2])
         end
-        sleep 2
+        finish = Time.now
+        elapsed_time = (finish - start).to_i
+        sleep (ttl - elapsed_time) if elapsed_time < ttl
+        sleep 1
       end
 
       it 'should warn that ca is expired' do
@@ -52,6 +57,7 @@ describe "C99821 - workflow - regen CA after it expires" do
                         "key='#{@public_key}'",
                        ]
                 on(agent, puppet_resource('ssh_authorized_key', "#{@key_name}", args))
+                on(master, "ssh #{agent.hostname} ls")
               end
             end
             on(master, "/opt/puppetlabs/puppet/bin/gem install chloride")
