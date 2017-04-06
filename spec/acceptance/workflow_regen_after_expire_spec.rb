@@ -42,9 +42,8 @@ describe "C99821 - workflow - regen CA after it expires" do
         context 'automatically distribute new ca to linux hosts' do
           before(:all) do
             # distribute ssh key for root to agents
-            @key_name = "pl#{rand(999999).to_i}"
-            on(master, "ssh-keygen -t rsa -f $HOME/.ssh/id-rsa-#{@key_name} -P ''")
-            on(master, "cat $HOME/.ssh/id-rsa-#{@key_name}.pub") do |result|
+            on(master, "ssh-keygen -t rsa -f $HOME/.ssh/id-rsa -P ''")
+            on(master, "cat $HOME/.ssh/id-rsa.pub") do |result|
               key_array = result.stdout.split(' ')
               fail_test('could not get ssh key from master') unless key_array.size > 1
               @public_key = key_array[1]
@@ -56,8 +55,8 @@ describe "C99821 - workflow - regen CA after it expires" do
                         "type='rsa'",
                         "key='#{@public_key}'",
                        ]
-                on(agent, puppet_resource('ssh_authorized_key', "#{@key_name}", args))
-                on(master, "ssh #{agent.hostname} ls")
+                on(agent, puppet_resource('ssh_authorized_key', master.hostname, args))
+                on(master, "ssh -o StrictHostKeyChecking=no #{agent.hostname} ls")
               end
             end
             on(master, "/opt/puppetlabs/puppet/bin/gem install chloride")
