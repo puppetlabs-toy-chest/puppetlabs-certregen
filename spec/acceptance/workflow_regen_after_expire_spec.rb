@@ -60,7 +60,7 @@ describe "C99821 - workflow - regen CA after it expires" do
               end
             end
             on(master, "/opt/puppetlabs/puppet/bin/gem install chloride")
-            result = on(master, puppet("certregen redistribute --debug --trace"))
+            result = on(master, puppet("certregen redistribute"))
             @report = JSON.parse(result.stdout)
           end
 
