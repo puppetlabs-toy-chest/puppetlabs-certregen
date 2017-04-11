@@ -42,8 +42,8 @@ describe "C99821 - workflow - regen CA after it expires" do
         context 'automatically distribute new ca to linux hosts' do
           before(:all) do
             # distribute ssh key for root to agents
-            on(master, "ssh-keygen -t rsa -f $HOME/.ssh/id-rsa -P ''")
-            on(master, "cat $HOME/.ssh/id-rsa.pub") do |result|
+            on(master, "ssh-keygen -t rsa -f $HOME/.ssh/id_rsa -P ''")
+            on(master, "cat $HOME/.ssh/id_rsa.pub") do |result|
               key_array = result.stdout.split(' ')
               fail_test('could not get ssh key from master') unless key_array.size > 1
               @public_key = key_array[1]
@@ -60,14 +60,14 @@ describe "C99821 - workflow - regen CA after it expires" do
               end
             end
             on(master, "/opt/puppetlabs/puppet/bin/gem install chloride")
-            result = on(master, puppet("certregen redistribute"))
+            result = on(master, puppet("certregen redistribute --debug --trace"))
             @report = JSON.parse(result.stdout)
           end
 
           after(:all) do
-            on(master, "rm -f $HOME/.ssh/id-rsa-#{@key_name}", :acceptable_exit_codes => [0,1])
+            on(master, "rm -f $HOME/.ssh/id_rsa $HOME/.ssh/id_rsa.pub", :acceptable_exit_codes => [0,1])
             agents.each do |agent|
-              on(agent, puppet_resource('ssh_authorized_key', "#{@key_name}", ['ensure=absent', "user='root'"]), :acceptable_exit_codes => [0,1])
+              on(agent, puppet_resource('ssh_authorized_key', master.hostname, ['ensure=absent', "user='root'"]), :acceptable_exit_codes => [0,1])
             end
           end
 
