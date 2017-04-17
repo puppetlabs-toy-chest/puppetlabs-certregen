@@ -3,7 +3,7 @@ require 'json'
 
 # https://forge.puppet.com/puppetlabs/certregen#revive-a-ca-thats-already-expired
 describe "C99821 - workflow - regen CA after it expires" do
-  if hosts_with_role(hosts, 'master').length>0 and hosts_with_role(hosts, 'database').length>0 then
+  if find_install_type == 'pe' then
     # This workflow only works with a master to manage the CA
     # This workflow only works with a puppetdb instance to query hostnames from
     context 'create CA to be expired and update agents' do
