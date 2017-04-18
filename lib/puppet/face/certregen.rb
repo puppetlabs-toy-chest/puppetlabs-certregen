@@ -114,11 +114,34 @@ Puppet::Face.define(:certregen, '0.1.0') do
       else
         certs.map do |cert|
           str = "#{cert.name.inspect} #{cert.digest.to_s}\n"
-          PuppetX::Certregen::Certificate.expiry(cert).each do |row|
-            str << "  #{row[0]}: #{row[1]}\n"
+          expiry = PuppetX::Certregen::Certificate.expiry(cert)
+          str << "Status: #{expiry[:status]}\n"
+          str << "Expiration date: #{expiry[:expiration_date]}\n"
+          if expiry[:expires_in]
+            str << "Expires in: #{expiry[:expires_in]}\n"
           end
           str
         end
+      end
+    end
+
+    when_rendering :pson do |certs|
+      certs.map do |cert|
+        {
+          :name => cert.name,
+          :digest => cert.digest.to_s,
+          :expiry => PuppetX::Certregen::Certificate.expiry(cert)
+        }
+      end
+    end
+
+    when_rendering :yaml do |certs|
+      certs.map do |cert|
+        {
+          :name => cert.name,
+          :digest => cert.digest.to_s,
+          :expiry => PuppetX::Certregen::Certificate.expiry(cert)
+        }
       end
     end
   end
