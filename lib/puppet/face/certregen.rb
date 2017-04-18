@@ -96,14 +96,14 @@ Puppet::Face.define(:certregen, '0.1.0') do
     end
 
     when_invoked do |opts|
-      certs = []
       ca = PuppetX::Certregen::CA.setup
+
+      certs = Puppet::SSL::Certificate.indirection.search('*').select do |cert|
+        opts[:all] || PuppetX::Certregen::Certificate.expiring?(cert)
+      end
+
       cacert = ca.host.certificate
       certs << cacert if (opts[:all] || PuppetX::Certregen::Certificate.expiring?(cacert))
-
-      certs.concat(ca.list_certificates.select do |cert|
-        opts[:all] || PuppetX::Certregen::Certificate.expiring?(cert)
-      end.to_a)
 
       certs.sort { |a, b| a.content.not_after <=> b.content.not_after }
     end
