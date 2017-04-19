@@ -12,8 +12,7 @@ describe "puppet certregen healthcheck" do
       end
       it 'should not produce a health warning' do
         on(master, "puppet certregen healthcheck") do |result|
-          # FIXME: The following check should be uncommented when MODULES-4659 is resolved.
-          #expect(result.stderr).to be_empty
+          expect(result.stderr).to be_empty
           expect(result.stdout).to match(/No certificates are approaching expiration/)
         end
       end
