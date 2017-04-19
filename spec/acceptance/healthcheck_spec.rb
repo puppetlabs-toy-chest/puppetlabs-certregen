@@ -73,7 +73,7 @@ describe "puppet certregen healthcheck" do
           @result = on(master, "puppet certregen healthcheck --all")
         end
         it 'should contain expiration data for ca cert' do
-          expect(@result.stdout).to match(/"ca".*\n\s+Status:.*\n\s+Expir/)
+          expect(@result.stdout).to match(/"ca".*\n\s*Status:\s*[Ee]xpir/)
         end
         it 'should contain expiration data for all node certs' do
           @certs.each do |cert|
@@ -86,38 +86,44 @@ describe "puppet certregen healthcheck" do
 
         context 'C99808 - --render-as yaml' do
           before(:all) do
+            on(master, puppet("cert list --all")) do |result|
+              @certs = result.stdout.scan(/\) ([A-F0-9:]+) /)
+            end
             @result = on(master, "puppet certregen healthcheck --all --render-as yaml")
+            @yaml = YAML.load(@result.stdout)
           end
           it 'should return valid yaml' do
             expect(YAML.parse(@result.stdout)).to be_instance_of(Psych::Nodes::Document)
           end
           it 'should contain expiration data for ca cert' do
-            pending("MODULES-4542")
-            expect(YAML.load(@result.stdout)).to match(/"ca".*\n\s+Status:.*\n\s+Expir/)
+            ca = @yaml.find { |record| record[:name] == 'ca' }
+            expect(ca).not_to be nil
+            expect(ca[:expiry][:status]).to eq(:expired)
           end
           it 'should contain expiration data for all node certs' do
-            pending("MODULES-4542")
             @certs.each do |cert|
-              expect(YAML.load(@result.stdout)).to include cert[0]
+              expect(@yaml.find { |record| record[:digest] =~ /#{cert[0]}/ }).not_to be nil
             end
           end
         end
 
-        context 'C99809 - --render-as json prints valid yaml containing expiration data' do
+        context 'C99809 - --render-as json prints valid json containing expiration data' do
           before(:all) do
-            @result = on(master, "puppet certregen healthcheck --all --render-as json")
+            on(master, puppet("cert list --all")) do |result|
+              @certs = result.stdout.scan(/\) ([A-F0-9:]+) /)
+            end
+            @json = JSON.parse(on(master, "puppet certregen healthcheck --all --render-as json").stdout)
           end
           it 'should return valid json' do
-            expect(JSON.parse(@result.stdout)).not_to be nil
+            expect(@json).not_to be nil
           end
           it 'should contain expiration data for ca cert' do
-            pending("MODULES-4542")
-            expect(JSON.parse(@result.stdout).keys).to include 'ca'
+            ca = @json.find { |record| record['name'] == 'ca' }
+            expect(ca).not_to be nil
           end
           it 'should contain expiration data for all node certs' do
-            pending("MODULES-4542")
             @certs.each do |cert|
-              expect(JSON.load(@result.stdout).keys).to include cert[0]
+              expect(@json.find { |record| record['digest'] =~ /#{cert[0]}/ }).not_to be nil
             end
           end
         end
