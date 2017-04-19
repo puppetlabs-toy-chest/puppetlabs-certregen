@@ -6,7 +6,7 @@ module PuppetX
       module_function
 
       # @param cert [Puppet::SSL::Certificate]
-      # @return [Array<Array<String, String>>]
+      # @return [Hash<Symbol, String>]
       def expiry(cert)
         if cert.content.not_after < Time.now
           status = :expired
@@ -16,10 +16,13 @@ module PuppetX
           status = :ok
         end
 
-        data = [['Status', status], ['Expiration date', cert.content.not_after]]
+        data = {
+          :status => status,
+          :expiration_date => cert.content.not_after
+        }
 
         if status != :expired
-          data << ['Expires in', PuppetX::Certregen::Util.duration(cert.content.not_after - Time.now)]
+          data[:expires_in] = PuppetX::Certregen::Util.duration(cert.content.not_after - Time.now)
         end
 
         data

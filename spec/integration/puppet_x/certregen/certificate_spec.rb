@@ -49,13 +49,11 @@ RSpec.describe PuppetX::Certregen::Certificate do
     describe "with an expired cert" do
       subject { described_class.expiry(expired_certificate) }
       it "has a status of expired" do
-        status = subject.find { |i| i[0] == 'Status' }
-        expect(status[1]).to eq :expired
+        expect(subject[:status]).to eq :expired
       end
 
       it "includes the not after date" do
-        not_after = subject.find { |i| i[0] == 'Expiration date' }
-        expect(not_after[1]).to eq expired_certificate.content.not_after
+        expect(subject[:expiration_date]).to eq expired_certificate.content.not_after
       end
     end
 
@@ -63,18 +61,15 @@ RSpec.describe PuppetX::Certregen::Certificate do
       subject { described_class.expiry(expiring_certificate) }
 
       it "has a status of expiring" do
-        status = subject.find { |i| i[0] == 'Status' }
-        expect(status[1]).to eq :expiring
+        expect(subject[:status]).to eq :expiring
       end
 
       it "includes the not after date" do
-        not_after = subject.find { |i| i[0] == 'Expiration date' }
-        expect(not_after[1]).to eq expiring_certificate.content.not_after
+        expect(subject[:expiration_date]).to eq expiring_certificate.content.not_after
       end
 
       it "includes the time till expiration" do
-        expires = subject.find { |i| i[0] == 'Expires in' }
-        expect(expires[1]).to match(/29 days, 23 hours, 59 minutes/)
+        expect(subject[:expires_in]).to match(/29 days, 23 hours, 59 minutes/)
       end
     end
 
@@ -82,18 +77,15 @@ RSpec.describe PuppetX::Certregen::Certificate do
       subject { described_class.expiry(ok_certificate) }
 
       it "has a status of ok" do
-        status = subject.find { |i| i[0] == 'Status' }
-        expect(status[1]).to eq :ok
+        expect(subject[:status]).to eq :ok
       end
 
       it "includes the not after date" do
-        not_after = subject.find { |i| i[0] == 'Expiration date' }
-        expect(not_after[1]).to eq ok_certificate.content.not_after
+        expect(subject[:expiration_date]).to eq ok_certificate.content.not_after
       end
 
       it "includes the time till expiration" do
-        expires = subject.find { |i| i[0] == 'Expires in' }
-        expect(expires[1]).to match(/4 years, 364 days, 23 hours, 59 minutes/)
+        expect(subject[:expires_in]).to match(/4 years, 364 days, 23 hours, 59 minutes/)
       end
     end
   end
