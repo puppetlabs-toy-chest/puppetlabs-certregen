@@ -9,8 +9,7 @@
   "issues_url": "https://tickets.puppetlabs.com/browse/MODULES",
   "dependencies": [
     {
-      "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.2.2 <5.0.0"
+      "name": "puppetlabs/stdlib"
     }
   ],
   "operatingsystem_support": [
