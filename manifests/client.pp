@@ -14,7 +14,8 @@ class certregen::client(
     mode    => '0644',
   }
 
-  $crl_managed_by_pe = ($::pe_build and versioncmp($::pe_build, '3.7.0') >= 0) and is_classified_with('puppet_enterprise::profile::master')
+  $pe_build = getvar('::pe_build')
+  $crl_managed_by_pe = ($pe_build and versioncmp($pe_build, '3.7.0') >= 0) and is_classified_with('puppet_enterprise::profile::master')
   $needs_crl = $manage_crl and !defined(File[$::hostcrl]) and !$crl_managed_by_pe
 
   if $needs_crl {

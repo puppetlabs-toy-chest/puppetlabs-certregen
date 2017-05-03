@@ -8,7 +8,9 @@
   "project_page": "https://github.com/puppetlabs/puppetlabs-certregen",
   "issues_url": "https://tickets.puppetlabs.com/browse/MODULES",
   "dependencies": [
-
+    {
+      "name": "puppetlabs/stdlib"
+    }
   ],
   "operatingsystem_support": [
     {
