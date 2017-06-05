@@ -4,6 +4,8 @@ require 'puppet_blacksmith/rake_tasks' if Bundler.rubygems.find_name('puppet-bla
 
 PuppetLint.configuration.fail_on_warnings = true
 PuppetLint.configuration.send('relative')
+MetadataJsonLint.options.strict_dependencies = false
+MetadataJsonLint.options.fail_on_warnings = false
 
 desc 'Generate pooler nodesets'
 task :gen_nodeset do
