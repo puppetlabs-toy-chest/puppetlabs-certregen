@@ -1,3 +1,18 @@
+## Release 0.2.0
+
+#### Summary
+
+This is a feature and bugfix release.
+
+#### Features
+* (MODULES-4542) Support YAML and JSON output formats for `puppet certregen healthcheck`.
+* (MODULES-4681) Support for Puppet `strict_variables` compiler setting.
+
+#### Bugfixes
+
+* (MODULES-4523) Return expiration of new CA cert for `puppet certregen ca`; previously the expiration of the old CA certificate was returned.
+* (MODULES-4659) Remove usage of APIs deprecated in Puppet 5
+
 ## Release 0.1.1
 
 #### Summary
