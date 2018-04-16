@@ -30,7 +30,7 @@ RSpec.configure do |c|
   end
 end
 
-RSpec.shared_context "Initialize CA" do
+RSpec.shared_context 'Initialize CA' do
   # PKI generation is done by initializing a CertificateAuthority object, which has the effect of
   # applying the settings catalog, generating a RSA keypair, and generating a CA certificate.
   # Since we're regenerating the CA state between each test we need to create a new
@@ -42,7 +42,7 @@ RSpec.shared_context "Initialize CA" do
 
   before(:each) do
     Puppet::SSL::Host.ca_location = :only
-    Puppet.settings.preferred_run_mode = "master"
+    Puppet.settings.preferred_run_mode = 'master'
 
     Puppet[:ca] = true
     Puppet[:ca_name] = 'Puppet CA: foo'

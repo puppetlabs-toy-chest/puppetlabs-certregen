@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'puppet_x/certregen/crl'
 
 RSpec.describe PuppetX::Certregen::CRL do
-  include_context "Initialize CA"
+  include_context 'Initialize CA'
 
   describe '.refresh' do
     def normalize_time(t)
@@ -13,7 +13,7 @@ RSpec.describe PuppetX::Certregen::CRL do
     let(:oldcrl) { @oldcrl }
 
     before do
-      @oldcrl = Puppet::SSL::CertificateRevocationList.indirection.find("ca")
+      @oldcrl = Puppet::SSL::CertificateRevocationList.indirection.find('ca')
       allow(Time).to receive(:now).and_return stub_time
       described_class.refresh(Puppet::SSL::CertificateAuthority.new)
     end
@@ -34,7 +34,7 @@ RSpec.describe PuppetX::Certregen::CRL do
       crl.content.extensions.find { |ext| ext.oid == 'crlNumber' }.value
     end
 
-    it "increments the CRL number" do
+    it 'increments the CRL number' do
       newcrl = Puppet::SSL::CertificateRevocationList.from_instance(
         OpenSSL::X509::CRL.new(File.read(Puppet[:cacrl])), 'ca')
 

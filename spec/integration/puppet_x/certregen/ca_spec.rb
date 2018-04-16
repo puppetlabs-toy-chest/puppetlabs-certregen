@@ -2,22 +2,21 @@ require 'spec_helper'
 require 'puppet_x/certregen/ca'
 
 RSpec.describe PuppetX::Certregen::CA do
+  include_context 'Initialize CA'
 
-  include_context "Initialize CA"
-
-  describe "#setup" do
-    it "errors out when the node is not a CA" do
+  describe '#setup' do
+    it 'errors out when the node is not a CA' do
       Puppet[:ca] = false
       expect {
         described_class.setup
-      }.to raise_error(RuntimeError, "Unable to set up CA: this node is not a CA server.")
+      }.to raise_error(RuntimeError, 'Unable to set up CA: this node is not a CA server.')
     end
 
-    it "errors out when the node does not have a signed CA certificate" do
+    it 'errors out when the node does not have a signed CA certificate' do
       FileUtils.rm(Puppet[:cacert])
       expect {
         described_class.setup
-      }.to raise_error(RuntimeError, "Unable to set up CA: the CA certificate is not present.")
+      }.to raise_error(RuntimeError, 'Unable to set up CA: the CA certificate is not present.')
     end
   end
 
@@ -51,8 +50,8 @@ RSpec.describe PuppetX::Certregen::CA do
     it 'generates a certificate with a different serial number' do
       old_serial = Puppet::SSL::CertificateAuthority.new.host.certificate.content.serial
       described_class.regenerate(Puppet::SSL::CertificateAuthority.new)
-      new_serial = Puppet::SSL::Certificate.indirection.find("ca").content.serial
-      expect(old_serial).to_not eq new_serial
+      new_serial = Puppet::SSL::Certificate.indirection.find('ca').content.serial
+      expect(old_serial).not_to eq new_serial
     end
 
     before do
@@ -61,27 +60,25 @@ RSpec.describe PuppetX::Certregen::CA do
     end
 
     it 'copies the old subject CN to the new certificate' do
-      new_cacert = Puppet::SSL::Certificate.indirection.find("ca")
+      new_cacert = Puppet::SSL::Certificate.indirection.find('ca')
       expect(new_cacert.content.subject.to_a[0][1]).to eq 'Puppet CA: foo'
     end
 
-    it "matches the issuer field with the old CA and new CA" do
-      new_cacert = Puppet::SSL::Certificate.indirection.find("ca")
+    it 'matches the issuer field with the old CA and new CA' do
+      new_cacert = Puppet::SSL::Certificate.indirection.find('ca')
       expect(new_cacert.content.issuer.to_a[0][1]).to eq 'Puppet CA: foo'
     end
 
-    it "matches the Authority Key Identifier field with the old CA and new CA" do
-      new_cacert = Puppet::SSL::Certificate.indirection.find("ca")
+    it 'matches the Authority Key Identifier field with the old CA and new CA' do
+      new_cacert = Puppet::SSL::Certificate.indirection.find('ca')
       aki = new_cacert.content.extensions.find { |ext| ext.oid == 'authorityKeyIdentifier' }
-      expect(aki.value).to match(/Puppet CA: foo/)
+      expect(aki.value).to match(%r{Puppet CA: foo})
     end
 
     it 'copies the cacert to the localcacert' do
       described_class.regenerate(Puppet::SSL::CertificateAuthority.new)
-      cacert = Puppet::SSL::Certificate.from_instance(
-                                       OpenSSL::X509::Certificate.new(File.read(Puppet[:cacert])))
-      localcacert = Puppet::SSL::Certificate.from_instance(
-                                       OpenSSL::X509::Certificate.new(File.read(Puppet[:localcacert])))
+      cacert = Puppet::SSL::Certificate.from_instance(OpenSSL::X509::Certificate.new(File.read(Puppet[:cacert])))
+      localcacert = Puppet::SSL::Certificate.from_instance(OpenSSL::X509::Certificate.new(File.read(Puppet[:localcacert])))
       expect(cacert.content.serial).to eq localcacert.content.serial
     end
   end

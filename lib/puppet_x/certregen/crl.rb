@@ -35,7 +35,7 @@ module PuppetX
       end
 
       # @api private
-      def with_next_crl_number_from(crl_content, existing_extensions)
+      def with_next_crl_number_from(_crl_content, existing_extensions)
         existing_crl_num = existing_extensions.find { |e| e.oid == 'crlNumber' }
         new_crl_num = existing_crl_num ? existing_crl_num.value.to_i + 1 : 0
         extensions_without_crl_num = existing_extensions.reject { |e| e.oid == 'crlNumber' }

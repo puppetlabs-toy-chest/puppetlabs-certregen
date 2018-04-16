@@ -113,7 +113,7 @@ Puppet::Face.define(:certregen, '0.1.0') do
         "No certificates are approaching expiration."
       else
         certs.map do |cert|
-          str = "#{cert.name.inspect} #{cert.digest.to_s}\n"
+          str = "#{cert.name.inspect} #{cert.digest}\n"
           expiry = PuppetX::Certregen::Certificate.expiry(cert)
           str << "Status: #{expiry[:status]}\n"
           str << "Expiration date: #{expiry[:expiration_date]}\n"
