@@ -20,9 +20,10 @@ class certregen::client(
 
   if $needs_crl {
     file { $::hostcrl:
-      ensure  => present,
-      content => file($settings::cacrl, $settings::hostcrl, '/dev/null'),
-      mode    => '0644',
+      ensure    => present,
+      content   => file($settings::cacrl, $settings::hostcrl, '/dev/null'),
+      mode      => '0644',
+      show_diff => false,
     }
   }
 }
