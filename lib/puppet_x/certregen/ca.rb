@@ -41,7 +41,7 @@ module PuppetX
         request = Puppet::SSL::CertificateRequest.new(Puppet::SSL::Host::CA_NAME)
         request.generate(ca.host.key)
         PuppetX::Certregen::CA.sign(ca, Puppet::SSL::CA_NAME,
-                                    {allow_dns_alt_names: false, self_signing_csr: request})
+                                    {:allow_dns_alt_names => false, :self_signing_csr => request})
         FileUtils.cp(Puppet[:cacert], Puppet[:localcacert])
       end
 
@@ -84,7 +84,7 @@ module PuppetX
       def distribute_file(host, src, dst, blk)
         tmp = "#{File.basename(src)}.tmp.#{SecureRandom.uuid}"
 
-        copy_action = Chloride::Action::FileCopy.new(to_host: host, from: src, to: tmp)
+        copy_action = Chloride::Action::FileCopy.new(:to_host => host, :from => src, :to => tmp)
         copy_action.go(&blk)
         if copy_action.success?
           Puppet.info "Copied #{src} to #{host.hostname}:#{tmp}"
@@ -92,7 +92,7 @@ module PuppetX
           raise "Failed to copy #{src} to #{host.hostname}:#{tmp}: #{copy_action.status}"
         end
 
-        move_action = Chloride::Action::Execute.new(host: host, cmd: "cp #{tmp} #{dst}", sudo: true)
+        move_action = Chloride::Action::Execute.new(:host => host, :cmd => "cp #{tmp} #{dst}", :sudo => true)
         move_action.go(&blk)
 
         if move_action.success?
@@ -115,8 +115,8 @@ module PuppetX
         query = 'SELECT certname FROM certnames WHERE deactivated IS NULL AND expired IS NULL;'
         cmd = psql % Shellwords.escape(query)
         Puppet::Util::Execution.execute(cmd,
-                                        uid: 'pe-postgres',
-                                        gid: 'pe-postgres').split("\n")
+                                        :uid => 'pe-postgres',
+                                        :gid => 'pe-postgres').split("\n")
 
       end
 

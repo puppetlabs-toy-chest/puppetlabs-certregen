@@ -27,13 +27,13 @@ RSpec.describe PuppetX::Certregen::CA do
     it 'uses the positional argument form when the Puppet version predates 4.6.0' do
       stub_const('Puppet::PUPPETVERSION', '4.5.0')
       expect(ca).to receive(:sign).with('hello', false, true)
-      described_class.sign(ca, 'hello', allow_dns_alt_names: false, self_signing_csr: true)
+      described_class.sign(ca, 'hello', :allow_dns_alt_names => false, :self_signing_csr => true)
     end
 
     it 'uses the hash argument form when the Puppet version is 4.6.0 or greater' do
       stub_const('Puppet::PUPPETVERSION', '4.8.0')
-      expect(ca).to receive(:sign).with('hello', allow_dns_alt_names: false, self_signing_csr: false)
-      described_class.sign(ca, 'hello', allow_dns_alt_names: false, self_signing_csr: false)
+      expect(ca).to receive(:sign).with('hello', :allow_dns_alt_names => false, :self_signing_csr => false)
+      described_class.sign(ca, 'hello', :allow_dns_alt_names => false, :self_signing_csr => false)
     end
   end
 
