@@ -6,7 +6,8 @@
 # and compile nodes will need to run Puppet on the compile masters before the CA cert can be
 # distributed to the agents.
 class certregen::client(
-  $manage_crl = true
+  $manage_crl = true,
+  $show_diff_crl = undef
 ) {
   file { $::localcacert:
     ensure  => present,
@@ -20,9 +21,10 @@ class certregen::client(
 
   if $needs_crl {
     file { $::hostcrl:
-      ensure  => present,
-      content => file($settings::cacrl, $settings::hostcrl, '/dev/null'),
-      mode    => '0644',
+      ensure    => present,
+      content   => file($settings::cacrl, $settings::hostcrl, '/dev/null'),
+      mode      => '0644',
+      show_diff => $show_diff_crl,
     }
   }
 }
